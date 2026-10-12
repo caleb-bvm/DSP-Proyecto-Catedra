@@ -16,7 +16,7 @@ Estado del 12 de octubre de 2026, después de desarrollar el prototipo. Fuente a
 | 8. UX/UI | Verificada visualmente | Diseño azul/amarillo consistente con prototipos, capturas de escritorio/móvil; validación con usuarios aún pendiente |
 | 9. Pruebas y validación | Evidencias locales completas para casos ejecutados | 15 pruebas automatizadas y 87 HTTP; faltan evidencia de IA real y contenedor |
 | 10. Documentación técnica | Redactada para la implementación actual | Tres manuales, modelo, esquema SQL y propuesta Azure; completar evidencias externas al obtenerlas |
-| 11. Repositorio Git | Parcial | Estructura y repositorio local; falta remoto compartido y colaboración real de integrantes |
+| 11. Repositorio Git | Parcial | Estructura y commits locales con autoría Codex; falta remoto compartido y colaboración real de integrantes |
 | 12. Pitch técnico | Preparado documentalmente; presentación pendiente | Guion y arquitectura disponibles; falta ensayo/grabación/participación del equipo |
 
 ## Requisitos mínimos y productos
