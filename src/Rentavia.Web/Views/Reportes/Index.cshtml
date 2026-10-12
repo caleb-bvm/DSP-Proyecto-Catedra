@@ -1,0 +1,73 @@
+@model ReporteModel
+@{ ViewData["Title"] = "Reportes"; }
+</div>
+<h1>Reportes</h1>
+<p class="lead-text">Resumen de registros del período seleccionado.</p>
+<div class="panel">
+<form asp-action="Index" method="get">
+<div asp-validation-summary="All">
+</div>
+<div class="form-grid">
+<div class="field">
+<label asp-for="Desde">
+</label>
+<input asp-for="Desde" type="date" class="form-control"/>
+</div>
+<div class="field">
+<label asp-for="Hasta">
+</label>
+<input asp-for="Hasta" type="date" class="form-control"/>
+</div>
+</div>
+<button class="btn btn-primary">Consultar</button> <button type="button" class="btn btn-outline-secondary" onclick="window.print()">Imprimir</button>
+</form>
+</div>
+<div class="metrics">
+<div class="metric">
+<strong style="font-size:23px">@Presentacion.Dinero(Model.Ingresos)</strong>
+<span>Pagos registrados</span>
+</div>
+<div class="metric">
+<strong>@Model.Reservas</strong>
+<span>Reservas creadas</span>
+</div>
+<div class="metric">
+<strong>@Model.Alquileres</strong>
+<span>Entregas registradas</span>
+</div>
+<div class="metric">
+<strong style="font-size:23px">@Presentacion.Dinero(Model.CostoMantenimiento)</strong>
+<span>Costo de mantenimiento programado</span>
+</div>
+</div>
+<div class="panel">
+<h2>Detalle de ingresos</h2>
+<div class="table-responsive">
+<table class="table">
+<thead>
+<tr>
+<th>Fecha</th>
+<th>Alquiler</th>
+<th>Monto</th>
+<th>Método</th>
+</tr>
+</thead>
+<tbody>@foreach(var p in Model.Pagos){<tr>
+<td>@Presentacion.Fecha(p.FechaUtc)</td>
+<td>
+<a asp-controller="Alquileres" asp-action="Detalle" asp-route-id="@p.AlquilerId">#@p.AlquilerId</a>
+</td>
+<td>@Presentacion.Dinero(p.Monto)</td>
+<td>@p.Metodo</td>
+</tr>}</tbody>
+</table>
+</div>
+</div>
+
+<div class="panel">
+    <h2>Utilización observada por vehículo</h2>
+    <p class="lead-text">Horas entre entrega y devolución dentro del período, divididas entre sus horas totales. Los alquileres abiertos se cuentan hasta el momento de la consulta.</p>
+    <div class="table-responsive"><table class="table">
+        <thead><tr><th>Placa</th><th>Horas de uso</th><th>Utilización</th></tr></thead>
+        <tbody>@foreach (var uso in Model.Uso) { <tr><td>@uso.Placa</td><td>@uso.Horas</td><td>@uso.Porcentaje %</td></tr> }</tbody>
+    </table></div>

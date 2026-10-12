@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · Rentavía</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+<div class="app-shell @(User.Identity?.IsAuthenticated == true ? "" : "public-shell")">
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <aside class="sidebar">
+            <a class="brand" asp-controller="Home" asp-action="Index">
+<span class="brand-mark">RV</span>
+<span>RENTAVÍA<small>GESTIÓN DE FLOTA</small>
+</span>
+</a>
+            <span class="nav-caption">OPERACIÓN</span>
+            <nav aria-label="Navegación principal">
+                @foreach (var item in new[] { ("Home", "Inicio"), ("Disponibilidad", "Disponibilidad"), ("Vehiculos", "Vehículos"), ("Clientes", "Clientes"), ("Reservas", "Reservas"), ("Alquileres", "Alquileres"), ("Mantenimientos", "Mantenimiento"), ("Recomendaciones", "Recomendador IA"), ("Categorias", "Categorías"), ("Sucursales", "Sucursales") })
+                {
+                    <a class="@(ViewContext.RouteData.Values["controller"]?.ToString() == item.Item1 ? "active" : "")" asp-controller="@item.Item1" asp-action="Index">@item.Item2</a>
+                }
+                @if (User.IsInRole("Administrador"))
+                {
+                    <span class="nav-caption">ADMINISTRACIÓN</span>
+                    <a asp-controller="Reportes" asp-action="Index">Reportes</a>
+                    <a asp-controller="Reportes" asp-action="Auditoria">Auditoría</a>
+                    <a asp-controller="Usuarios" asp-action="Index">Usuarios</a>
+                }
+            </nav>
+            <div class="sidebar-bottom">
+<small>@User.Identity?.Name</small>
+                <form asp-controller="Cuenta" asp-action="Salir" method="post">
+<button class="logout">Cerrar sesión</button>
+</form>
+            </div>
+        </aside>
+    }
+    <main class="main-content" id="contenido">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <header class="topbar">
+<span>Agencia piloto <span class="badge-soft">Prototipo académico</span>
+</span>
+<a asp-controller="Home" asp-action="Privacy">Acerca del sistema</a>
+</header>
+        }
+        <div class="content-wrap">
+            @if (TempData["Exito"] is string exito) { <div class="alert alert-success" role="status">@exito</div> }
+            @if (TempData["Error"] is string error) { <div class="alert alert-danger" role="alert">@error</div> }
+            @RenderBody()
+        </div>
+        <footer>Rentavía · Proyecto académico 2026 · Horario de la agencia: UTC-6</footer>
+    </main>
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js">
+</script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js">
+</script>
+<script src="~/js/site.js" asp-append-version="true">
+</script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

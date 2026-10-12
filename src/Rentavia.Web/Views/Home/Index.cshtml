@@ -1,0 +1,65 @@
+@model PanelModel
+@{ ViewData["Title"] = "Inicio"; }
+<div class="page-heading">
+<div>
+<span class="eyebrow" style="color:#967021">TU OPERACIÓN, A UN VISTAZO</span>
+<h1>Inicio</h1>
+<p class="lead-text">Disponibilidad y seguimiento de la agencia.</p>
+</div>
+<a class="btn btn-primary" asp-controller="Reservas" asp-action="Editar">+ Nueva reserva</a>
+</div>
+<div class="metrics">
+<div class="metric">
+<strong>@Model.VehiculosActivos</strong>
+<span>Vehículos activos</span>
+</div>
+<div class="metric">
+<strong>@Model.ClientesActivos</strong>
+<span>Clientes activos</span>
+</div>
+<div class="metric">
+<strong>@Model.ReservasConfirmadas</strong>
+<span>Reservas confirmadas</span>
+</div>
+<div class="metric">
+<strong>@Model.AlquileresAbiertos</strong>
+<span>Alquileres abiertos</span>
+</div>
+</div>
+<div class="panel">
+<div class="page-heading">
+<h2>Próximas devoluciones</h2>
+<a asp-controller="Alquileres" asp-action="Index">Ver alquileres</a>
+</div>
+@if(Model.Devoluciones.Count == 0){<p class="empty">No hay devoluciones pendientes.</p>}
+else {<div class="table-responsive">
+<table class="table">
+<thead>
+<tr>
+<th>Vehículo</th>
+<th>Devolución prevista</th>
+<th>Estado</th>
+<th>
+</th>
+</tr>
+</thead>
+<tbody>
+@foreach(var a in Model.Devoluciones){<tr>
+<td>@a.Vehiculo.Placa · @a.Vehiculo.Modelo</td>
+<td>@Presentacion.Fecha(a.Reserva.FinUtc)</td>
+<td>
+<span class="state">@(a.Reserva.FinUtc < DateTimeOffset.UtcNow ? "Atrasado" : "En curso")</span>
+</td>
+<td>
+<a asp-controller="Alquileres" asp-action="Detalle" asp-route-id="@a.Id">Ver detalle</a>
+</td>
+</tr>}
+</tbody>
+</table>
+</div>}
+</div>
+<div class="panel">
+<h2>Selecciona el vehículo adecuado</h2>
+<p class="lead-text">Consulta fechas y capacidades antes de confirmar. El recomendador ofrece alternativas según las preferencias del viaje.</p>
+<a class="btn btn-outline-secondary" asp-controller="Disponibilidad" asp-action="Index">Consultar disponibilidad</a> <a class="btn btn-primary" asp-controller="Recomendaciones" asp-action="Index">Abrir recomendador IA</a>
+</div>
