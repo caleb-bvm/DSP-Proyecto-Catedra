@@ -12,6 +12,18 @@ Entrega: 18 de octubre de 2026. No se declara la rúbrica completa mientras exis
 
 ## Comenzar
 
+En Windows, hacer doble clic en **`Iniciar-Rentavia.cmd`**, o ejecutar desde PowerShell:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Iniciar-Rentavia.ps1
+```
+
+El lanzador verifica el SDK fijado en `global.json`, descarga .NET si falta, restaura herramientas y paquetes, compila e importa el esquema mediante las migraciones actuales. Reutiliza `.\SQLEXPRESS` si está instalado; en otro caso instala SQL Server Express LocalDB y crea `(localdb)\Rentavia`. Windows puede pedir permisos para instalar LocalDB o iniciar el servicio SQL. Crea un administrador solo si no hay usuarios y carga datos ficticios solo si los catálogos están vacíos. Abre la web en `http://127.0.0.1:5295`; detener con Ctrl+C.
+
+La conexión elegida y las credenciales iniciales se guardan en `.env.local.json`, excluido de Git. Las ejecuciones siguientes conservan cuentas y datos. Opciones: `-SoloPreparar`, `-SinDatosDemo`, `-SinAbrirNavegador`, `-Puerto 5296`, `-ServidorSql '(localdb)\Rentavia'` y `-BaseDatos Rentavia_Demo`. Ver detalles y requisitos en el [manual de instalación](docs/manuales/Instalacion.md).
+
+Para preparar el entorno manualmente:
+
 Abrir `Rentavia.sln` en Visual Studio 2026 o usar .NET SDK 10.0.400. SQL local: `.\SQLEXPRESS` con autenticación Windows.
 
 ```powershell
@@ -35,7 +47,7 @@ Para una base nueva en Docker, con motor Linux disponible:
 
 Si `.env` ya existe, no se reemplaza. Para reiniciar una instalación preparada, usar `./scripts/Iniciar-docker.ps1`. Web Docker: `http://localhost:8080` por defecto. No se ha acreditado ejecución Docker en esta máquina.
 
-OpenAI lee `OPENAI_API_KEY` del entorno del backend; modelo configurable `OpenAI__Modelo` (predeterminado `gpt-4.1-mini`). Docker toma la clave de `.env`. .NET local no carga `.env` automáticamente. Sin clave o ante un fallo se muestra **Reglas (sin IA)**.
+OpenAI lee `OPENAI_API_KEY` del entorno del backend; modelo configurable `OpenAI__Modelo` (predeterminado `gpt-4.1-mini`). Docker toma la clave de `.env`. El lanzador nuevo también lee la clave y el modelo de `.env`, dando prioridad a las variables del proceso. `dotnet run` directo no carga `.env` automáticamente. Sin clave o ante un fallo se muestra **Reglas (sin IA)**.
 
 ## Documentación
 

@@ -15,6 +15,48 @@ La URL debe sustituirse por la dirección real del equipo. Existe un repositorio
 
 ## Requisitos para ejecución local
 
+### Instalación y arranque automáticos en Windows
+
+Requiere Windows de 64 bits, PowerShell 5.1 o posterior (incluido en Windows) e Internet para las descargas iniciales. No requiere Visual Studio, Docker, Node, Python ni SQL Server Management Studio para ejecutar la aplicación.
+
+Hacer doble clic en `Iniciar-Rentavia.cmd` en la raíz del proyecto, o ejecutar:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Iniciar-Rentavia.ps1
+```
+
+El lanzador realiza estas operaciones:
+
+1. Comprueba que .NET satisface `global.json` y tiene el runtime ASP.NET Core 10. Si falta, descarga el SDK con el [instalador oficial de Microsoft](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-install-script) en `.dotnet-local/dotnet`, sin cambiar el PATH permanente. Restaura la herramienta EF y todos los paquetes NuGet de la solución, y compila.
+2. Reutiliza SQL Server Express `.\SQLEXPRESS` si está instalado. Si no existe, utiliza una instancia propia `(localdb)\Rentavia` e instala [SQL Server Express LocalDB](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb) si hace falta. Verifica la firma de Microsoft en el instalador y el paquete MSI. LocalDB requiere Windows x64; la descarga usa SQL Server 2022 Express. Windows puede solicitar elevación para instalar el motor o arrancar un servicio detenido. Si la instalación requiere reiniciar, el script lo indica y debe ejecutarse de nuevo después.
+3. Crea la base y aplica todas las migraciones EF, incluido su historial. Esta es la importación del esquema vigente; no ejecuta además los archivos SQL históricos ni reemplaza una base existente.
+4. Crea una cuenta administradora cuando no hay usuarios. Reutiliza `ADMIN_EMAIL` y `ADMIN_PASSWORD` de `.env` si están definidos; en otro caso genera una contraseña aleatoria. Guarda la conexión y las credenciales en `.env.local.json`, excluido de Git. Si ya existen usuarios, utiliza las cuentas existentes sin cambiar contraseñas ni permisos. Carga la demostración únicamente si categorías, sucursales, clientes y vehículos están vacíos.
+5. Inicia la web, espera a que `/health` confirme la conexión SQL y abre `http://127.0.0.1:5295` en el navegador. Ctrl+C detiene la aplicación y conserva la base de datos.
+
+El lanzador restaura las variables del proceso y la carpeta de trabajo al terminar. La configuración guardada en `.env.local.json` permite reutilizar la misma base en ejecuciones posteriores. El correo y la contraseña se consultan en ese archivo cuando el lanzador ha creado la cuenta; no se imprimen contraseñas en la consola. No incluir `.env`, `.env.local.json` ni `.dotnet-local` en entregas.
+
+Opciones de ejecución:
+
+| Opción | Uso |
+| --- | --- |
+| `-SoloPreparar` | Instalar/restaurar dependencias y preparar la base sin iniciar la web |
+| `-SinDatosDemo` | Preparar el esquema y la cuenta inicial sin insertar catálogos ficticios |
+| `-SinAbrirNavegador` | Iniciar la web sin abrir el navegador |
+| `-Puerto 5296` | Elegir otro puerto HTTP local si el predeterminado está ocupado |
+| `-ServidorSql '(localdb)\Rentavia'` | Elegir explícitamente una instancia local con autenticación Windows |
+| `-BaseDatos Rentavia_Demo` | Elegir otra base; solo letras ASCII, números y guion bajo |
+
+Por ejemplo:
+
+```powershell
+.\Iniciar-Rentavia.ps1 -ServidorSql '(localdb)\Rentavia' -BaseDatos Rentavia_Demo -SoloPreparar
+.\Iniciar-Rentavia.ps1 -Puerto 5296 -SinAbrirNavegador
+```
+
+La instancia y el nombre elegidos se guardan para la próxima ejecución. Una instancia configurada que no responda produce un error; no se cambia silenciosamente a otra base. El lanzador acepta conexiones locales, con autenticación Windows, y no requiere `sqlcmd`. Las herramientas Python/Node de las pruebas opcionales se instalan por separado según `tests/README.md`.
+
+### Instalación manual
+
 - Visual Studio 2026 con desarrollo web o editor compatible con .NET.
 - .NET SDK 10.0.400, fijado en `global.json`.
 - SQL Server Express accesible en `.\SQLEXPRESS`, autenticación Windows. Para otra instancia, cambiar la conexión de desarrollo.
@@ -59,13 +101,13 @@ La carga crea una categoría, sucursal, cliente ficticio y tres vehículos. Una 
 ./scripts/Iniciar-local.ps1 -Preparar
 ```
 
-`-Preparar` aplica migraciones, pero no crea cuentas ni carga datos. Detener la web con Ctrl+C.
+El script anterior `scripts/Iniciar-local.ps1` requiere las dependencias ya instaladas. `-Preparar` aplica migraciones, pero no crea cuentas ni carga datos. Para instalación y arranque completos, usar `Iniciar-Rentavia.ps1` en la raíz. Detener la web con Ctrl+C.
 
 ## Configurar OpenAI
 
 La aplicación lee `OPENAI_API_KEY` o `OpenAI__ApiKey` del entorno del servidor y `OpenAI__Modelo` para el modelo. El valor predeterminado es `gpt-4.1-mini`. La clave es un secreto del backend; no incluirla en Razor, JavaScript, Git, imágenes Docker ni evidencias. Consultar la [autenticación oficial](https://developers.openai.com/api/reference/overview).
 
-Configurar la clave mediante un administrador de secretos o una variable del proceso. `dotnet run` local no carga `.env` automáticamente. Iniciar un nuevo proceso de la web después de configurar la variable. Una cuenta API con permisos y saldo disponibles es necesaria para una prueba real.
+Configurar la clave mediante un administrador de secretos o una variable del proceso. `Iniciar-Rentavia.ps1` también lee `OPENAI_API_KEY` y `OPENAI_MODEL` de `.env` si no hay valores en el proceso. `dotnet run` directo no carga `.env` automáticamente. Iniciar un nuevo proceso de la web después de configurar la variable. Una cuenta API con permisos y saldo disponibles es necesaria para una prueba real.
 
 Sin clave, con timeout, límite de consumo o salida defectuosa, la pantalla muestra **Reglas (sin IA)**. Esa alternativa no acredita integración IA real. Para cerrar la evidencia debe obtenerse un resultado **OpenAI** mediante la llamada real.
 

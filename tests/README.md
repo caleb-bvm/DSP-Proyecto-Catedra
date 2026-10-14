@@ -10,6 +10,18 @@ Quince pruebas de reglas, transporte OpenAI simulado y SQL Server real. Crean un
 
 `RENTAVIA_TEST_CONNECTION` indica otra instancia de SQL y `RENTAVIA_TEST_RESULT` permite guardar JSON. Las respuestas de OpenAI de esta suite son simuladas y no acreditan una llamada real.
 
+## Verificar el lanzador de Windows
+
+Con .NET y SQL Server ya instalados:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tests/Verificar-inicio-local.ps1
+# Para una instancia LocalDB ya disponible:
+powershell -NoProfile -ExecutionPolicy Bypass -File tests/Verificar-inicio-local.ps1 -ServidorSql '(localdb)\Rentavia'
+```
+
+La prueba crea y elimina únicamente una base `Rentavia_Inicio_Pruebas_<GUID>`, restaura `.env.local.json` al terminar y comprueba migraciones, cuenta inicial, repetición sin duplicados, opción sin datos demo, arranque HTTP e inicio de sesión. Guarda la salida del arranque en `tmp/inicio-local-*`. No prueba la descarga/instalación desde cero ni requiere modificar la base habitual `Rentavia`.
+
 ## Recorrido HTTP opcional
 
 Usar únicamente una base de demostración, una web ya iniciada y `.env` local con ADMIN_EMAIL/ADMIN_PASSWORD:
